@@ -8,7 +8,8 @@ import os
 # If the below seems too complex right now, that's OK.
 # That's why we have provided it!
 class DatabaseConnection:
-    DATABASE_NAME = "book_store" # <-- CHANGE THIS!
+    DATABASE_NAME = os.getenv("DATABASE_NAME", "book_store_test") # <-- CHANGE THIS!
+    DATABASE_HOST = os.getenv("DATABASE_HOST", "localhost")
 
     def __init__(self):
         self.connection = None
@@ -18,7 +19,7 @@ class DatabaseConnection:
     def connect(self):
         try:
             self.connection = psycopg.connect(
-                f"postgresql://localhost/{self.DATABASE_NAME}",
+                f"postgresql://{self.DATABASE_HOST}/{self.DATABASE_NAME}",
                 row_factory=dict_row)
         except psycopg.OperationalError:
             raise Exception(f"Couldn't connect to the database {self.DATABASE_NAME}! " \

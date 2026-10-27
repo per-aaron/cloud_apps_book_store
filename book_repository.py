@@ -11,7 +11,7 @@ class BookRepository:
         rows = self._connection.execute('SELECT * from books')
         books = []
         for row in rows:
-            item = Book(row["id"], row["title"], row["author"])
+            item = Book(row["title"], row["author"], row["id"])
             books.append(item)
         return books
 
@@ -20,7 +20,7 @@ class BookRepository:
         rows = self._connection.execute(
             'SELECT * from books WHERE id = %s', [book_id])
         row = rows[0]
-        return Book(row["id"], row["title"], row["author"])
+        return Book(row["title"], row["author"], row["id"])
 
     # Create a new book
     # Do you want to get its id back? Look into RETURNING id;

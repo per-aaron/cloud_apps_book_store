@@ -1,6 +1,9 @@
-from flask import Flask, render_template # Add 'render_template' to your listed imports from Flask
+from flask import Flask, request, redirect, render_template # Add 'render_template' to your listed imports from Flask
 from database_connection import DatabaseConnection
 from book_repository import BookRepository
+from book import Book
+from user_repository import UserRepository
+from user import User
 
 # instantiate a Flask app object
 app = Flask(__name__)
@@ -19,6 +22,18 @@ def books():
     books = book_repository.all()
     print(books)
     return render_template("books.html", books=books)
+
+@app.route('/books', methods=['POST'])
+def create_book():
+    connection = DatabaseConnection()
+    connection.connect()
+    book_repository = BookRepository(connection)
+
+    book_details = request.form
+    book = Book(book_details["title"], book_details["author"])
+    
+    book_repository.create(book)
+    return redirect("/books")
 
 @app.route('/authors', methods=['GET'])
 def authors():
@@ -50,6 +65,22 @@ def get_team():
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
+
+@app.route("/users/new", methods=["GET"])
+def get_registration_page():
+    return render_template("signup_form.html")
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    connection = DatabaseConnection()
+    connection.connect()
+    user_repository = UserRepository(connection)
+
+    user_details = request.form
+    user = User(user_details["username"], user_details["password"])
+    
+    user_repository.create(user)
+    return redirect("/")
 
 
 # make the server run in response to `python app.py`
