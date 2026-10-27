@@ -1,0 +1,17 @@
+<html>
+    <head>
+        AceReads Bookstore
+    </head>
+    <!--<link rel="stylesheet" href="/static/styles.css">-->
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
+    <body>
+        <main>
+            <h1>Book List</h1>
+            <ul>
+                {% for book in books %}
+                <li> {{book.title}} by {{book.author}}</li>
+                {% endfor %}
+            </ul>
+        </main>
+    </body>
+</html>
