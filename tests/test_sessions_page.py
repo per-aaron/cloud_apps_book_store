@@ -28,4 +28,4 @@ def test_unsuccessful_login_returns_to_new(page: Page):
     page.get_by_label("password").fill("password1234")
     page.get_by_role("button", name="Sign in").click()
  
-    assert page.url == "http://127.0.0.1:5001/sessions/ne"
+    assert page.url == "http://127.0.0.1:5001/sessions/new"
