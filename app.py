@@ -104,9 +104,7 @@ def create_session():
     password = request.form["password"]
 
     user = user_repository.find(username)
-    print(bcrypt.check_password_hash(user.password, password))
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    print(user.password, hashed_password)
 
     if user and bcrypt.check_password_hash(user.password, password):
         session['username'] = username
