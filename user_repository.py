@@ -15,11 +15,14 @@ class UserRepository:
             books.append(item)
         return books
 
-    def find(self, user_id):
+    def find(self, username):
         rows = self._connection.execute(
-            'SELECT * from users WHERE id = %s', [user_id])
-        row = rows[0]
-        return User(row["username"], row["password"], row["id"])
+            'SELECT * from users WHERE username = %s', [username])
+        if rows:
+            row = rows[0]
+            return User(row["username"], row["password"], row["id"])
+        else:
+            return None
 
     def create(self, user):
         self._connection.execute('INSERT INTO users (username, password) VALUES (%s, %s)', [

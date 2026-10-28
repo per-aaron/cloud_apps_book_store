@@ -23,7 +23,40 @@ def test_has_book_list(page: Page):
                                 "The Girl Who Drank the Moon by Kelly Barnhill",
                                 "Dragons in a Bag by Zetta Elliott"]
 
+def test_unauth_user_cant_create_book(page: Page):
+    connection = DatabaseConnection()
+    connection.connect()
+    connection.execute("TRUNCATE TABLE users;") 
+    connection.execute("INSERT INTO users (username, password) values ('testuser', 'password123');")
+
+    page.goto("http://127.0.0.1:5001/sessions/new")
+
+    page.get_by_label("username").fill("testuser")
+    page.get_by_label("password").fill("password1234")
+    page.get_by_role("button", name="Sign in").click()
+ 
+    page.goto("http://127.0.0.1:5001/books")
+    page.get_by_label("Title").fill("The Spectre of Pep")
+    page.get_by_label("Author").fill("Jon Mckenzie")
+    page.get_by_role("button", name="Submit").click()
+
+    list = page.locator("li")
+    books = list.all_inner_texts()
+
+    assert page.url == "http://127.0.0.1:5001/sessions/new"
+
 def test_books_form_creates_book(page: Page):
+    connection = DatabaseConnection()
+    connection.connect()
+    connection.execute("TRUNCATE TABLE users;") 
+    connection.execute("INSERT INTO users (username, password) values ('testuser', 'password123');")
+
+    page.goto("http://127.0.0.1:5001/sessions/new")
+
+    page.get_by_label("username").fill("testuser")
+    page.get_by_label("password").fill("password123")
+    page.get_by_role("button", name="Sign in").click()
+
     page.goto("http://127.0.0.1:5001/books")
 
     page.get_by_label("Title").fill("Open Circuits")
@@ -33,3 +66,5 @@ def test_books_form_creates_book(page: Page):
     new_book = page.locator("li").all_inner_texts()[-1]
 
     assert new_book == "Open Circuits by Windell Oskay"
+
+
