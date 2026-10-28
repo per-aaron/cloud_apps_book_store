@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template, session, abort # Add 'render_template' to your listed imports from Flask
+from flask_bcrypt import Bcrypt
 from database_connection import DatabaseConnection
 from book_repository import BookRepository
 from book import Book
@@ -9,6 +10,7 @@ from login_required import login_required
 # instantiate a Flask app object
 app = Flask(__name__)
 app.secret_key = "some_really_secret_key"
+bcrypt = Bcrypt(app)
 
 
 # Declares a route that listens for a GET request to the path /hello
@@ -82,7 +84,8 @@ def create_user():
     user_repository = UserRepository(connection)
 
     user_details = request.form
-    user = User(user_details["username"], user_details["password"])
+    hashed_password = bcrypt.generate_password_hash(user_details["password"]).decode('utf-8')
+    user = User(user_details["username"], hashed_password)
     
     user_repository.create(user)
     return redirect("/")
@@ -101,8 +104,11 @@ def create_session():
     password = request.form["password"]
 
     user = user_repository.find(username)
+    print(bcrypt.check_password_hash(user.password, password))
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    print(user.password, hashed_password)
 
-    if user and user.password == password:
+    if user and bcrypt.check_password_hash(user.password, password):
         session['username'] = username
         session['uid'] = user.id
         return redirect("/books")

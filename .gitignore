@@ -1,2 +1,5 @@
 *venv*/
 *__pycache__*/
+authenticated.py
+deploy_book_store.sh
+injection.sql

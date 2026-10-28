@@ -1,5 +1,7 @@
 from playwright.sync_api import Page, expect
 from database_connection import DatabaseConnection
+from flask_bcrypt import Bcrypt
+from app import app
 
 def test_has_title(page: Page):
     page.goto("http://127.0.0.1:5001/books")
@@ -24,10 +26,13 @@ def test_has_book_list(page: Page):
                                 "Dragons in a Bag by Zetta Elliott"]
 
 def test_unauth_user_cant_create_book(page: Page):
+    bcrypt = Bcrypt(app)
+
     connection = DatabaseConnection()
     connection.connect()
-    connection.execute("TRUNCATE TABLE users;") 
-    connection.execute("INSERT INTO users (username, password) values ('testuser', 'password123');")
+    connection.execute("TRUNCATE TABLE users;")
+    hashed = bcrypt.generate_password_hash('password123').decode('utf-8')
+    connection.execute("INSERT INTO users (username, password) values ('testuser', %s)", [hashed])
 
     page.goto("http://127.0.0.1:5001/sessions/new")
 
@@ -46,10 +51,13 @@ def test_unauth_user_cant_create_book(page: Page):
     assert page.url == "http://127.0.0.1:5001/sessions/new"
 
 def test_books_form_creates_book(page: Page):
+    bcrypt = Bcrypt(app)
+
     connection = DatabaseConnection()
     connection.connect()
     connection.execute("TRUNCATE TABLE users;") 
-    connection.execute("INSERT INTO users (username, password) values ('testuser', 'password123');")
+    hashed = bcrypt.generate_password_hash('password123').decode('utf-8')
+    connection.execute("INSERT INTO users (username, password) values ('testuser', %s)", [hashed])
 
     page.goto("http://127.0.0.1:5001/sessions/new")
 

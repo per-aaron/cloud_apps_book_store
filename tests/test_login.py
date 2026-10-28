@@ -3,10 +3,12 @@ import os
 
 from app import app
 from database_connection import DatabaseConnection
+from flask_bcrypt import Bcrypt
 
 def test_sessions_accepts_login_data():
     # create the test client to send requests without using Playwright and a browser
     client = app.test_client()
+    bcrypt = Bcrypt(app)
 
     # set up a DB connection
     connection = DatabaseConnection()
@@ -14,7 +16,8 @@ def test_sessions_accepts_login_data():
     #connection.seed("./seeds/users.sql")
     #Below more appropriate than seeding since it is just one command required
     connection.execute("TRUNCATE TABLE users;")
-    connection.execute("INSERT INTO users (username, password) values ('testuser', 'password123');")
+    hashed = bcrypt.generate_password_hash('password123').decode('utf-8')
+    connection.execute("INSERT INTO users (username, password) values ('testuser', %s)", [hashed])
 
    # send the request
     response = client.post('/sessions', data={
@@ -31,6 +34,7 @@ def test_sessions_accepts_login_data():
 def test_sessions_rejects_incorrect_password():
     # create the test client to send requests without using Playwright and a browser
     client = app.test_client()
+    bcrypt = Bcrypt(app)
 
     # set up a DB connection
     connection = DatabaseConnection()
@@ -38,7 +42,8 @@ def test_sessions_rejects_incorrect_password():
     #connection.seed("./seeds/users.sql")
     #Below more appropriate than seeding since it is just one command required
     connection.execute("TRUNCATE TABLE users;")
-    connection.execute("INSERT INTO users (username, password) values ('testuser', 'password123');")
+    hashed = bcrypt.generate_password_hash('password123').decode('utf-8')
+    connection.execute("INSERT INTO users (username, password) values ('testuser', %s)", [hashed])
 
    # send the request
     response = client.post('/sessions', data={
