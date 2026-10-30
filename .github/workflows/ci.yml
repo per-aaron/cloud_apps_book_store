@@ -13,6 +13,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_USER: runner
           POSTGRES_DB: book_store_test
+          FLAGSMITH_KEY: ${{secrets.FLAGSMITH_KEY}}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
