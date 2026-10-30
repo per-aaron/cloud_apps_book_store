@@ -6,11 +6,17 @@ from book import Book
 from user_repository import UserRepository
 from user import User
 from login_required import login_required
+from flagsmith import Flagsmith
+import os
+from dotenv import load_dotenv
 
 # instantiate a Flask app object
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = "some_really_secret_key"
 bcrypt = Bcrypt(app)
+flagsmith_key = os.getenv("FLAGSMITH_KEY")
+flagsmith = Flagsmith(environment_key=flagsmith_key)
 
 
 # Declares a route that listens for a GET request to the path /hello
@@ -26,7 +32,7 @@ def books():
     connection.connect()
     book_repository = BookRepository(connection)
     books = book_repository.all()
-    print(books)
+
     return render_template("books.html", books=books)
 
 @app.route('/books', methods=['POST'])
@@ -65,9 +71,13 @@ def authors():
 
 @app.route('/team', methods=['GET'])
 def get_team():
-    team = ["Dorothy", "Rose", "Blanche", "Sophia"]
-    return render_template("team.html", team=team)
-
+    flags = flagsmith.get_environment_flags()
+    if flags.is_feature_enabled("new_page"):
+        team = ["GLaDOS", "Cave Johnson", "Weighted Companion Cube", "That Crow", "a potato"]
+        return render_template("team_v2.html", team=team)
+    else:
+        team = ["Dorothy", "Rose", "Blanche", "Sophia"]
+        return render_template("team.html", team=team)
 
 @app.route("/", methods=["GET"])
 def index():
@@ -104,7 +114,6 @@ def create_session():
     password = request.form["password"]
 
     user = user_repository.find(username)
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     if user and bcrypt.check_password_hash(user.password, password):
         session['username'] = username

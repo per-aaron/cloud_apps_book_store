@@ -3,3 +3,5 @@
 authenticated.py
 deploy_book_store.sh
 injection.sql
+.env
+/.vscode
