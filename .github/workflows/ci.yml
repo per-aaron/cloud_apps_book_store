@@ -45,8 +45,6 @@ jobs:
 
       - name: Start web app
         run: nohup python app.py > app.log 2>&1 &
-        env:
-          FLAGSMITH_KEY: ${{secrets.FLAGSMITH_KEY}}
 
       - name: Run tests
         run: |
