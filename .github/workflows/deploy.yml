@@ -86,5 +86,4 @@ jobs:
               --network book_store_network \
               --restart unless-stopped \
               -p 5001:5001 \
-              -e FLAGSMITH_KEY='${{ secrets.FLAGSMITH_KEY }}'
               book_store:latest
